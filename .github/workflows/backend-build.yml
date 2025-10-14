@@ -2,11 +2,11 @@ name: Build and Push Docker Image
 
 on:
   push:
-    branches: ["main"]
+    branches: [main]
     tags:
-      - "v*.."
+      - "v*.*.*"
     paths:
-      - 'Backend/' 
+      - 'Backend/**'
 
 jobs:
   build:
@@ -14,7 +14,7 @@ jobs:
 
     permissions:
       contents: read
-      packages: write # Necesario para subir a GHCR
+      packages: write
 
     steps:
       - name: Checkout code
@@ -30,21 +30,17 @@ jobs:
       - name: Determine image tags
         id: vars
         run: |
-          # Convertir el nombre del repositorio a minúsculas
           REPO_LOWER=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
           echo "REPO_NAME=${REPO_LOWER}" >> $GITHUB_ENV
-
           if [[ "${GITHUB_REF_TYPE}" == "tag" ]]; then
             echo "TAG=${GITHUB_REF_NAME}" >> $GITHUB_ENV
           else
             echo "TAG=latest" >> $GITHUB_ENV
-          fi
 
       - name: Build Docker image for Backend
-        # El contexto es ./Backend, y le añadimos un sufijo al tag
         run: |
           docker build -t ghcr.io/${{ env.REPO_NAME }}:${{ env.TAG }}-backend ./Backend
 
       - name: Push Docker image
         run: |
-          docker push ghcr.io/${{ env.REPO_NAME }}:${{ env.TAG }}-backend
+          docker push ghcr.io/${{ env.REPO_NAME }}:${{ env.TAG }}-backend

@@ -4,9 +4,9 @@ on:
   push:
     branches: ["main"]
     tags:
-      - "v*.."
+      - "v*.*.*"
     paths:
-      - 'frontend-app/' 
+      - 'frontend-app/**' 
 
 jobs:
   build:
