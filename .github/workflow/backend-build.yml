@@ -1,26 +1,26 @@
-name: Build and Push Backend Docker Image
+name: Build and Push Docker Image
 
 on:
   push:
     branches: ["main"]
+    tags:
+      - "v*.."
     paths:
-      - "Backend/**"
-  create:
-    tags: ["v*.*.*"]
-  workflow_dispatch: {}
+      - 'Backend/' 
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
     permissions:
       contents: read
-      packages: write
+      packages: write # Necesario para subir a GHCR
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Log in to GitHub Container Registry
+      - name: Log in to Github Container Registry
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
@@ -28,9 +28,12 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Determine image tags
+        id: vars
         run: |
+          # Convertir el nombre del repositorio a minúsculas
           REPO_LOWER=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
-          echo "REPO_NAME=$REPO_LOWER" >> $GITHUB_ENV
+          echo "REPO_NAME=${REPO_LOWER}" >> $GITHUB_ENV
+
           if [[ "${GITHUB_REF_TYPE}" == "tag" ]]; then
             echo "TAG=${GITHUB_REF_NAME}" >> $GITHUB_ENV
           else
@@ -38,9 +41,10 @@ jobs:
           fi
 
       - name: Build Docker image for Backend
+        # El contexto es ./Backend, y le añadimos un sufijo al tag
         run: |
-          docker build -t ghcr.io/${{ env.REPO_NAME }}:${{ env.TAG }}-backend "./Backend"
+          docker build -t ghcr.io/${{ env.REPO_NAME }}:${{ env.TAG }}-backend ./Backend
 
       - name: Push Docker image
         run: |
-          docker push ghcr.io/${{ env.REPO_NAME }}:${{ env.TAG }}-backend
+          docker push ghcr.io/${{ env.REPO_NAME }}:${{ env.TAG }}-backend
