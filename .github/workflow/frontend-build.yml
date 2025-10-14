@@ -3,15 +3,15 @@ name: Build and Push Frontend Docker Image
 on:
   push:
     branches: ["main"]
-    tags:
-      - "v*.*.*"
     paths:
-      - "frontend-app/**"
+      - "aplicación frontend/**"
+  create:
+    tags: ["v*.*.*"]
+  workflow_dispatch: {}
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
     permissions:
       contents: read
       packages: write
@@ -28,13 +28,9 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Determine image tags (Latest / Version)
-        id: vars
         run: |
-          # Convertir el nombre del repositorio a minúsculas
           REPO_LOWER=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
-          echo "REPO_NAME=${REPO_LOWER}" >> $GITHUB_ENV
-
-          # Determinar tag (latest o versión)
+          echo "REPO_NAME=$REPO_LOWER" >> $GITHUB_ENV
           if [[ "${GITHUB_REF_TYPE}" == "tag" ]]; then
             echo "TAG=${GITHUB_REF_NAME}" >> $GITHUB_ENV
           else
@@ -43,7 +39,9 @@ jobs:
 
       - name: Build Docker image for Frontend
         run: |
-          docker build -f ./frontend-app/Dockerfile -t ghcr.io/${{ env.REPO_NAME }}:${{ env.TAG }}-frontend ./frontend-app
+          docker build -f "./aplicación frontend/Dockerfile" \
+            -t ghcr.io/${{ env.REPO_NAME }}:${{ env.TAG }}-frontend \
+            "./aplicación frontend"
 
       - name: Push Docker image
         run: |
