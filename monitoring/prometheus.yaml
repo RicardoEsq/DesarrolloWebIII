@@ -1,0 +1,9 @@
+global:
+  scrape_interval: 5s  # Cada 5 segundos se realiza la recopilación de métricas
+
+scrape_configs:
+  - job_name: "fastapi-backend"
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["backend:8000"]  # Nombre del servicio (como en docker-compose) y puerto expuesto
+
