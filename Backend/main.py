@@ -3,6 +3,7 @@ from fastapi import FastAPI, Body, HTTPException
 from pymongo import MongoClient
 from fastapi.middleware.cors import CORSMiddleware
 from typing import Optional, List
+from prometheus_fastapi_instrumentator import Instrumentator
 
 app = FastAPI()
 app.add_middleware(
@@ -189,3 +190,5 @@ def operaciones_en_batch(payload: List[dict] = Body(...)):
         out.append({"op": op, "result": res})
 
     return out
+
+Instrumentator().instrument(app).expose(app)

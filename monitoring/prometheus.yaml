@@ -5,5 +5,5 @@ scrape_configs:
   - job_name: "fastapi-backend"
     metrics_path: /metrics
     static_configs:
-      - targets: ["backend:8000"]  # Nombre del servicio (como en docker-compose) y puerto expuesto
+      - targets: ["calculadora:8000"]  # Nombre del servicio (como en docker-compose) y puerto expuesto
 
